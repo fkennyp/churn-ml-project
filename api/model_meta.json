@@ -1,0 +1,15 @@
+{
+  "numeric_features": [
+    "tenure",
+    "MonthlyCharges"
+  ],
+  "categorical_features": [
+    "Contract",
+    "InternetService",
+    "PaymentMethod"
+  ],
+  "target_column": "Churn",
+  "positive_count_training": 1495,
+  "negative_count_training": 4139,
+  "scale_pos_weight": 2.768561872909699
+}
