@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
@@ -37,7 +36,6 @@ CATEGORICAL_FEATURES = [
 
 TARGET_COLUMN = "Churn"
 
-
 def load_processed_data() -> pd.DataFrame:
     if not PROCESSED_DATA_PATH.exists():
         raise FileNotFoundError(
@@ -46,7 +44,6 @@ def load_processed_data() -> pd.DataFrame:
         )
 
     return pd.read_csv(PROCESSED_DATA_PATH)
-
 
 def build_model(scale_pos_weight: float) -> Pipeline:
     """
@@ -89,7 +86,6 @@ def build_model(scale_pos_weight: float) -> Pipeline:
     )
 
     return model
-
 
 def main():
     print("Loading processed data...")
@@ -154,7 +150,6 @@ def main():
     print(f"Model saved to: {MODEL_PATH}")
     print(f"Metadata saved to: {MODEL_META_PATH}")
     print("=" * 50)
-
 
 if __name__ == "__main__":
     main()

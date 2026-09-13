@@ -9,7 +9,7 @@ from pathlib import Path
 # =====================================================
 app = FastAPI(
     title="Churn Prediction API",
-    description="API untuk prediksi churn pelanggan menggunakan XGBoost",
+    description="API for customer churn prediction using XGBoost",
     version="1.0.0",
 )
 
@@ -20,17 +20,16 @@ MODEL_PATH = Path(__file__).parent / "api" / "model.pkl"
 
 try:
     model = joblib.load(MODEL_PATH)
-    print(f"✅ Model berhasil dimuat dari {MODEL_PATH}")
+    print(f"✅ Model successfully loaded from {MODEL_PATH}")
 except Exception as e:
-    print(f"❌ Gagal load model: {e}")
+    print(f"❌ Failed to load model: {e}")
     model = None
-
 
 # =====================================================
 # Define Input Schema (Pydantic)
 # =====================================================
 class CustomerData(BaseModel):
-    """Schema untuk input data customer"""
+    """Schema for customer input data"""
     tenure: int
     MonthlyCharges: float
     Contract: str
@@ -48,24 +47,21 @@ class CustomerData(BaseModel):
             }
         }
 
-
 class PredictionResponse(BaseModel):
-    """Schema untuk response prediksi"""
+    """Schema for prediction response"""
     prediction: int
     churn_probability: float
     message: str
-
 
 # =====================================================
 # Health Check Endpoint
 # =====================================================
 @app.get("/health")
 def health_check():
-    """Check apakah API dan model ready"""
+    """Check if API and model are ready"""
     if model is None:
-        raise HTTPException(status_code=503, detail="Model tidak tersedia")
+        raise HTTPException(status_code=503, detail="Model not available")
     return {"status": "healthy", "model_loaded": True}
-
 
 # =====================================================
 # Prediction Endpoint
@@ -73,27 +69,27 @@ def health_check():
 @app.post("/predict", response_model=PredictionResponse)
 def predict(data: CustomerData):
     """
-    Prediksi apakah customer akan churn atau tidak.
+    Predict whether a customer will churn or not.
     
     - **prediction**: 1 = Churn, 0 = Stay
-    - **churn_probability**: probabilitas customer akan churn
+    - **churn_probability**: probability of the customer churning
     """
     if model is None:
-        raise HTTPException(status_code=503, detail="Model tidak tersedia")
+        raise HTTPException(status_code=503, detail="Model not available")
 
     try:
-        # Convert input ke DataFrame
+        # Convert input to DataFrame
         input_df = pd.DataFrame([data.dict()])
 
         # Predict
         prediction = model.predict(input_df)[0]
-        probability = model.predict_proba(input_df)[0][1]  # Probabilitas kelas positif (Churn)
+        probability = model.predict_proba(input_df)[0][1]  # Probability of the positive class (Churn)
 
         # Generate message
         if prediction == 1:
-            message = f"⚠️ Customer diprediksi CHURN dengan probabilitas {probability:.2%}"
+            message = f"⚠️ Customer predicted to CHURN with {probability:.2%} probability"
         else:
-            message = f"✅ Customer diprediksi TIDAK CHURN dengan probabilitas {1-probability:.2%}"
+            message = f"✅ Customer predicted to NOT CHURN with {1-probability:.2%} probability"
 
         return PredictionResponse(
             prediction=int(prediction),
@@ -102,4 +98,4 @@ def predict(data: CustomerData):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error saat prediksi: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error during prediction: {str(e)}")
