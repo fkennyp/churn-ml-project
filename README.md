@@ -134,11 +134,13 @@ Interactive docs (Swagger): `http://localhost:8000/docs`
 
 **Performance pada data test:**
 
-| Metric         | Value      |
-|----------------|------------|
-| Accuracy       | [ISI_DARI_OUTPUT_TRAINING] |
-| ROC-AUC        | [ISI_DARI_OUTPUT_TRAINING] |
-| Recall (churn) | [ISI_DARI_OUTPUT_TRAINING] |
+| Metric         | Value |
+|----------------|-------|
+| Accuracy       | 0.75  |
+| ROC-AUC        | 0.84  |
+| Recall (churn) | 0.79  |
+
+> **Catatan trade-off:** Karena data imbalanced (1.495 churn vs 4.139 stay), model diprioritaskan pada **recall churn** lewat `scale_pos_weight ≈ 2.77`. Precision kelas churn 0.52 adalah trade-off yang disengaja: bagi bisnis, biaya mengirim penawaran retention ke customer yang salah jauh lebih murah daripada kehilangan customer yang benar-benar churn.
 
 ## 🧠 Lessons Learned
 
