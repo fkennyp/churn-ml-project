@@ -1,6 +1,6 @@
 # 📉 Customer Churn Prediction — End-to-End ML Project
 
-End-to-end machine learning portfolio project: dari data mentah Kaggle → training model → **API prediksi (FastAPI)** → **web app (Streamlit)**.
+End-to-end machine learning portfolio project: from raw Kaggle data → model training → prediction API (FastAPI) → web app (Streamlit).
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688.svg)
@@ -10,16 +10,16 @@ End-to-end machine learning portfolio project: dari data mentah Kaggle → train
 
 ## 🎯 Problem
 
-Churn (pelanggan berhenti berlangganan) adalah biaya silencet tapi besar bagi bisnis subscription/telekomunikasi.
-**Goal:** memprediksi customer mana yang berisiko churn agar tim bisnis bisa melakukan aksi retention lebih awal.
+Customer churn (customers canceling their subscriptions) is a silent but massive cost for subscription and telecommunications businesses.
+**Goal:** Predict which customers are at risk of churning so the business team can take early retention actions.
 
 ## ⚡ Demo
 
-**Streamlit Web UI** (`:8501`) — form input → prediksi real-time dari API:
+**Streamlit Web UI** (`:8501`) — input form → real-time predictions from the API:
 
 ![Streamlit UI](docs/streamlit_demo.png)
 
-**FastAPI Interactive Docs** (`:8000/docs`) — Swagger UI otomatis:
+**FastAPI Interactive Docs** (`:8000/docs`) — auto-generated Swagger UI:
 
 ![Swagger API](docs/swagger_demo.png)
 
@@ -45,25 +45,25 @@ Churn (pelanggan berhenti berlangganan) adalah biaya silencet tapi besar bagi bi
 └────────────────┘   JSON result  └─────────────────────────────┘
 ```
 
-Frontend dan backend **terpisah penuh** — UI tidak me-load model, hanya memanggil API lewat HTTP (pola arsitektur industry-standard).
+Frontend and backend are **fully separated** — the UI does not load the model, it only calls the API via HTTP (an industry-standard architectural pattern).
 
 ## 📁 Project Structure
 
 ```
 churn-ml-project/
 ├── api/
-│   ├── model.pkl            # trained model (lokal, gitignored — regenerate via training)
+│   ├── model.pkl            # trained model (local, gitignored — regenerate via training)
 │   └── model_meta.json      # model card: features, class counts, scale_pos_weight
 ├── data/
-│   ├── raw/                 # dataset mentah dari Kaggle
-│   └── processed/           # hasil cleaning (gitignored, bisa digenerate ulang)
-├── docs/                    # screenshot untuk README
+│   ├── raw/                 # raw dataset from Kaggle
+│   └── processed/           # cleaned data (gitignored, can be regenerated)
+├── docs/                    # screenshots for README
 ├── src/
-│   ├── data_prep.py         # pipeline cleaning & preprocessing
-│   └── train_model.py       # training XGBoost + simpan model & metadata
+│   ├── data_prep.py         # data cleaning & preprocessing pipeline
+│   └── train_model.py       # XGBoost training + save model & metadata
 ├── ui/
-│   └── app.py               # frontend Streamlit
-├── app.py                   # backend FastAPI
+│   └── app.py               # Streamlit frontend
+├── app.py                   # FastAPI backend
 ├── requirements.txt
 └── README.md
 ```
@@ -78,27 +78,27 @@ cd churn-ml-project
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Prepare data & train model (menghasilkan model.pkl)
+# 3. Prepare data & train model (generates model.pkl)
 python src/data_prep.py
 python src/train_model.py
 
-# 4. Jalankan API backend (terminal 1)
+# 4. Run API backend (terminal 1)
 python -m uvicorn app:app --reload --port 8000
 
-# 5. Jalankan frontend (terminal 2)
+# 5. Run frontend (terminal 2)
 python -m streamlit run ui/app.py
 ```
 
-Buka **http://localhost:8501** → isi form → dapatkan prediksi churn beserta probabilitasnya.
+Open **http://localhost:8501** → fill out the form → get churn predictions along with probabilities.
 
 ## 🔌 API Endpoints
 
-| Method | Endpoint  | Fungsi                                  |
-|--------|-----------|-----------------------------------------|
-| GET    | `/health` | Health check (model loaded?)            |
-| POST   | `/predict`| Prediksi churn dari data customer       |
+| Method | Endpoint  | Function                                  |
+|--------|-----------|-------------------------------------------|
+| GET    | `/health` | Health check (model loaded?)              |
+| POST   | `/predict`| Predict churn based on customer data      |
 
-Contoh request `POST /predict`:
+Example `POST /predict` request:
 
 ```json
 {
@@ -110,13 +110,13 @@ Contoh request `POST /predict`:
 }
 ```
 
-Contoh response:
+Example response:
 
 ```json
 {
   "prediction": 1,
   "churn_probability": 0.8738,
-  "message": "⚠️ Customer diprediksi CHURN dengan probabilitas 87.38%"
+  "message": "⚠️ Customer predicted to CHURN with 87.38% probability"
 }
 ```
 
@@ -124,15 +124,15 @@ Interactive docs (Swagger): `http://localhost:8000/docs`
 
 ## 📊 Data & Model
 
-- **Dataset:** Customer Churn (Kaggle), ±7.043 customer
+- **Dataset:** Customer Churn (Kaggle), ~7,043 customers
 - **Features:**
   - Numeric: `tenure`, `MonthlyCharges`
   - Categorical: `Contract`, `InternetService`, `PaymentMethod` (OneHotEncoder)
-- **Class imbalance:** 1.495 churn vs 4.139 non-churn pada data training → ditangani dengan `scale_pos_weight ≈ 2.77` pada XGBoost
-- **Model:** `XGBClassifier` dalam scikit-learn `Pipeline` (preprocessing + classifier dalam satu objek)
-- **Model metadata:** lihat [`api/model_meta.json`](api/model_meta.json)
+- **Class imbalance:** 1,495 churn vs 4,139 non-churn in training data → handled with `scale_pos_weight ≈ 2.77` in XGBoost
+- **Model:** `XGBClassifier` wrapped in a scikit-learn `Pipeline` (preprocessing + classifier in a single object)
+- **Model metadata:** see [`api/model_meta.json`](api/model_meta.json)
 
-**Performance pada data test:**
+**Performance on test data:**
 
 | Metric         | Value |
 |----------------|-------|
@@ -140,22 +140,22 @@ Interactive docs (Swagger): `http://localhost:8000/docs`
 | ROC-AUC        | 0.84  |
 | Recall (churn) | 0.79  |
 
-> **Catatan trade-off:** Karena data imbalanced (1.495 churn vs 4.139 stay), model diprioritaskan pada **recall churn** lewat `scale_pos_weight ≈ 2.77`. Precision kelas churn 0.52 adalah trade-off yang disengaja: bagi bisnis, biaya mengirim penawaran retention ke customer yang salah jauh lebih murah daripada kehilangan customer yang benar-benar churn.
+> **Trade-off note:** Due to imbalanced data (1,495 churn vs 4,139 stay), the model is prioritized for **churn recall** via `scale_pos_weight ≈ 2.77`. A churn precision of 0.52 is an intentional trade-off: for a business, the cost of sending a retention offer to a non-churning customer is far cheaper than losing a customer who actually churns.
 
 ## 🧠 Lessons Learned
 
-- Menangani **class imbalance** dengan `scale_pos_weight`, bukan akurasi mentah
-- Membungkus preprocessing + model dalam satu **Pipeline** agar tidak bocor saat inference
-- Memisahkan **frontend & backend** lewat HTTP API, bukan satu script monolit
-- **Pydantic** untuk validasi input di tepi API — data ngawur ditolak otomatis (HTTP 422)
-- Menyimpan **model metadata** agar eksperimen reproducible dan terdokumentasi
+- Handling **class imbalance** with `scale_pos_weight`, rather than relying on raw accuracy
+- Wrapping preprocessing + model in a single **Pipeline** to prevent data leakage during inference
+- Separating **frontend & backend** via HTTP APIs, rather than a single monolithic script
+- Using **Pydantic** for input validation at the API edge — malformed data is automatically rejected (HTTP 422)
+- Saving **model metadata** to make experiments reproducible and documented
 
 ## 🗺️ Roadmap
 
-- [ ] Containerization dengan Docker
-- [ ] Deploy API ke cloud (Render / Railway)
-- [ ] Monitoring drift model
-- [ ] CI/CD dengan GitHub Actions
+- [ ] Containerization with Docker
+- [ ] Deploy API to cloud (Render / Railway)
+- [ ] Model drift monitoring
+- [ ] CI/CD with GitHub Actions
 
 ## 📬 Contact
 
