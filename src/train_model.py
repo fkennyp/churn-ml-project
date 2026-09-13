@@ -4,12 +4,11 @@ from pathlib import Path
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.metrics import classification_report, roc_auc_score
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from xgboost import XGBClassifier
-
 
 # =====================================================
 # Path configuration
@@ -21,7 +20,6 @@ PROCESSED_DATA_PATH = ROOT / "data" / "processed" / "churn_clean.csv"
 API_DIR = ROOT / "api"
 MODEL_PATH = API_DIR / "model.pkl"
 MODEL_META_PATH = API_DIR / "model_meta.json"
-
 
 # =====================================================
 # Feature configuration
@@ -43,8 +41,8 @@ TARGET_COLUMN = "Churn"
 def load_processed_data() -> pd.DataFrame:
     if not PROCESSED_DATA_PATH.exists():
         raise FileNotFoundError(
-            "File data processed belum ada.\n"
-            "Jalankan dulu: python src/data_prep.py"
+            "Processed data file not found.\n"
+            "Run this first: python src/data_prep.py"
         )
 
     return pd.read_csv(PROCESSED_DATA_PATH)
@@ -53,9 +51,9 @@ def load_processed_data() -> pd.DataFrame:
 def build_model(scale_pos_weight: float) -> Pipeline:
     """
     Build ML pipeline:
-    - Numeric: langsung dipakai
-    - Categorical: one-hot encoding
-    - Model: XGBoost
+    - Numeric features: used as-is (passthrough)
+    - Categorical features: one-hot encoding
+    - Classifier: XGBoost
     """
     preprocessor = ColumnTransformer(
         transformers=[
@@ -112,8 +110,8 @@ def main():
     positive_count = int(y_train.sum())
     negative_count = int(len(y_train) - positive_count)
 
-    # Dataset churn biasanya imbalanced.
-    # scale_pos_weight membantu model lebih peduli ke kelas churn.
+    # Churn datasets are usually imbalanced.
+    # scale_pos_weight makes the model pay more attention to the churn class.
     scale_pos_weight = negative_count / max(positive_count, 1)
 
     print("Building model...")
@@ -125,6 +123,10 @@ def main():
     print("Evaluating model...")
     y_pred = model.predict(X_test)
     y_prob = model.predict_proba(X_test)[:, 1]
+
+    # Confusion matrix counts (the "4 boxes")
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    print(f"Caught (TP): {tp} | Missed (FN): {fn} | False alarm (FP): {fp} | Safe (TN): {tn}")
 
     print("=" * 50)
     print("Classification Report")
@@ -149,8 +151,8 @@ def main():
     MODEL_META_PATH.write_text(json.dumps(model_metadata, indent=2))
 
     print("=" * 50)
-    print(f"Model disimpan di: {MODEL_PATH}")
-    print(f"Metadata disimpan di: {MODEL_META_PATH}")
+    print(f"Model saved to: {MODEL_PATH}")
+    print(f"Metadata saved to: {MODEL_META_PATH}")
     print("=" * 50)
 
 
