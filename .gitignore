@@ -2,3 +2,4 @@ data/raw/*.csv
 __pycache__/
 *.pkl
 .env
+data/processed/
